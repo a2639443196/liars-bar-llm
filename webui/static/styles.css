@@ -123,6 +123,14 @@ a {
   background: rgba(15, 23, 42, 0.5);
   color: var(--text-primary);
   font-weight: 500;
+  font-size: 14px;
+  line-height: 1;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
   transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -130,6 +138,19 @@ a {
   transform: translateY(-2px);
   border-color: rgba(96, 165, 250, 0.8);
   box-shadow: 0 12px 24px rgba(15, 118, 110, 0.35);
+}
+
+.nav-button.primary {
+  border-color: transparent;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.9), rgba(129, 140, 248, 0.9));
+  box-shadow: 0 18px 30px rgba(59, 130, 246, 0.35);
+}
+
+.nav-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .page-content {
