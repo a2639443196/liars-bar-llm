@@ -79,6 +79,22 @@ python player_matchup_analyze.py
 python game_analyze.py
 ```
 
+### Web UI 可视化面板
+
+为方便快速浏览历史对局，本项目提供了一个基于 Flask 的 WebUI：
+
+1. 安装依赖
+   ```bash
+   pip install flask
+   ```
+2. 启动服务
+   ```bash
+   python -m webui.app
+   ```
+3. 浏览器访问 `http://localhost:8000`，即可打开控制台，查看回合详细信息及炫酷展示页。
+
+默认会自动读取项目根目录下的 `game_records` 以及 `demo_records/game_records` 中的 JSON 文件，可直接体验 Demo 数据。
+
 ## Demo
 
 项目已将 DeepSeek-R1、o3-mini、Gemini-2-flash-thinking、Claude-3.7-Sonnet 四个模型作为玩家运行了50局，记录存放在`demo_records`文件夹中。
