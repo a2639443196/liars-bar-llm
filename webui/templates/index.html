@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Liars Bar LLM 控制台</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+  </head>
+  <body class="dashboard-body">
+    <div class="bg-gradient"></div>
+    <div class="floating-particles"></div>
+    <header class="page-header">
+      <div class="logo-stack">
+        <span class="logo-mark">♠</span>
+        <div class="logo-text">
+          <h1>Liars Bar LLM</h1>
+          <p>对局记录可视化控制台</p>
+        </div>
+      </div>
+      <nav class="header-actions">
+        <a class="nav-button" href="/showcase">炫酷展示页</a>
+        <a class="nav-button" href="https://github.com/" target="_blank" rel="noopener">项目仓库</a>
+      </nav>
+    </header>
+
+    <main class="page-content">
+      <section class="section-card">
+        <div class="section-title">
+          <h2>全局概览</h2>
+          <p>快速了解对局样本的整体趋势</p>
+        </div>
+        <div class="stats-grid" id="summary-stats"></div>
+      </section>
+
+      <section class="split-layout">
+        <div class="panel panel-left">
+          <div class="panel-header">
+            <h2>对局列表</h2>
+            <p>点击任意卡片查看详细的回合数据</p>
+          </div>
+          <div id="record-grid" class="record-grid"></div>
+        </div>
+        <div class="panel panel-right">
+          <div class="panel-header">
+            <h2>细节面板</h2>
+            <p>选择一场对局后将展示详细回合信息</p>
+          </div>
+          <div id="detail-panel" class="detail-panel empty-state">
+            <div class="empty-illustration">🜁</div>
+            <p>从左侧选择一场对局，即可查看 AI 玩家间的心理博弈细节。</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="page-footer">
+      <p>由大语言模型驱动的骗子酒馆对战框架 · WebUI 体验版</p>
+      <span class="footer-meta">Built for data explorers &amp; prompt engineers</span>
+    </footer>
+
+    <div id="toast" class="toast hidden"></div>
+
+    <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+  </body>
+</html>
