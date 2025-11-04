@@ -1,6 +1,7 @@
 import os
 import json
 
+
 def convert_game_record_to_chinese_text(json_file_path):
     """将游戏记录转换为中文可读风格文本"""
     with open(json_file_path, 'r', encoding='utf-8') as f:
@@ -36,7 +37,7 @@ def convert_game_record_to_chinese_text(json_file_path):
                     if other_player in active_players:
                         text += f"  - {other_player}: {opinion}\n"
                 text += "\n"
-            
+
         text += "开始发牌...\n\n"
         text += f"本轮目标牌：{round_record['target_card']}\n"
 
@@ -48,7 +49,7 @@ def convert_game_record_to_chinese_text(json_file_path):
                 bullet_pos = player_state["bullet_position"]
                 gun_pos = player_state["current_gun_position"]
                 initial_hand = ", ".join(player_state["initial_hand"])
-                
+
                 text += f"{player_name}：\n"
                 text += f"  - 子弹位置：{bullet_pos}\n"
                 text += f"  - 当前弹仓位置：{gun_pos}\n"
@@ -96,19 +97,20 @@ def convert_game_record_to_chinese_text(json_file_path):
     text += "\n════════════════════════════\n"
     text += "         游戏结束\n"
     text += "════════════════════════════\n\n"
-    
+
     # 突出显示最终赢家
     text += "★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★\n"
     text += f"    最终胜利者：{winner}\n"
     text += "★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★\n"
-    
+
     return text
+
 
 def process_game_records(input_directory, output_directory):
     """处理目录中的所有游戏记录 JSON 文件，生成可读风格的 TXT 文件到指定输出目录"""
     # 确保输出目录存在
     os.makedirs(output_directory, exist_ok=True)
-    
+
     for filename in os.listdir(input_directory):
         if filename.endswith('.json'):
             json_file_path = os.path.join(input_directory, filename)
@@ -120,6 +122,7 @@ def process_game_records(input_directory, output_directory):
             with open(txt_file_path, 'w', encoding='utf-8') as txt_file:
                 txt_file.write(game_text)
             print(f"已生成：{txt_file_path}")
+
 
 if __name__ == '__main__':
     game_records_directory = 'game_records'

@@ -1,0 +1,141 @@
+{
+    "game_id": "20251104_153429",
+    "player_names": [
+        "DeepSeek",
+        "Qwen",
+        "Kimi",
+        "DeepSeek3"
+    ],
+    "rounds": [
+        {
+            "round_id": 1,
+            "target_card": "A",
+            "round_players": [
+                "DeepSeek",
+                "Qwen",
+                "Kimi",
+                "DeepSeek3"
+            ],
+            "starting_player": "Qwen",
+            "player_initial_states": [
+                {
+                    "player_name": "DeepSeek",
+                    "bullet_position": 2,
+                    "current_gun_position": 0,
+                    "initial_hand": [
+                        "Q",
+                        "Q",
+                        "A",
+                        "K",
+                        "Q"
+                    ]
+                },
+                {
+                    "player_name": "Qwen",
+                    "bullet_position": 3,
+                    "current_gun_position": 0,
+                    "initial_hand": [
+                        "Q",
+                        "A",
+                        "K",
+                        "K",
+                        "A"
+                    ]
+                },
+                {
+                    "player_name": "Kimi",
+                    "bullet_position": 0,
+                    "current_gun_position": 0,
+                    "initial_hand": [
+                        "A",
+                        "K",
+                        "Q",
+                        "K",
+                        "Joker"
+                    ]
+                },
+                {
+                    "player_name": "DeepSeek3",
+                    "bullet_position": 0,
+                    "current_gun_position": 0,
+                    "initial_hand": [
+                        "A",
+                        "Q",
+                        "K",
+                        "A",
+                        "Joker"
+                    ]
+                }
+            ],
+            "player_opinions": {
+                "DeepSeek": {
+                    "Qwen": "还不了解这个玩家",
+                    "Kimi": "还不了解这个玩家",
+                    "DeepSeek3": "还不了解这个玩家"
+                },
+                "Qwen": {
+                    "DeepSeek": "还不了解这个玩家",
+                    "Kimi": "还不了解这个玩家",
+                    "DeepSeek3": "还不了解这个玩家"
+                },
+                "Kimi": {
+                    "DeepSeek": "还不了解这个玩家",
+                    "Qwen": "还不了解这个玩家",
+                    "DeepSeek3": "还不了解这个玩家"
+                },
+                "DeepSeek3": {
+                    "DeepSeek": "还不了解这个玩家",
+                    "Qwen": "还不了解这个玩家",
+                    "Kimi": "还不了解这个玩家"
+                }
+            },
+            "play_history": [
+                {
+                    "player_name": "Qwen",
+                    "played_cards": [
+                        "A",
+                        "A"
+                    ],
+                    "remaining_cards": [
+                        "Q",
+                        "K",
+                        "K"
+                    ],
+                    "play_reason": "我选择先打出两张真A，因为我手上有两张A，这样可以确保自己不会因假牌被质疑。同时，沉着自信的表现可以给下家Kimi制造压力，让他不敢轻易质疑我的出牌。",
+                    "behavior": "沉着地将两张牌推到桌面上，微微一笑，眼神中透露出一丝自信。",
+                    "next_player": "Kimi",
+                    "was_challenged": false,
+                    "challenge_reason": "我手上有1张A和1张Joker，共2张真A，而Qwen首轮就宣称打出2张A，概率上完全可能为真；若贸然质疑失败，我将被迫对自己开枪，6分之1的暴毙风险远大于此时盲目揭穿的收益。先保留质疑权，静观其变，让信息更充分后再做决定。",
+                    "challenge_result": null,
+                    "play_thinking": "",
+                    "challenge_thinking": ""
+                },
+                {
+                    "player_name": "Kimi",
+                    "played_cards": [
+                        "A",
+                        "Joker",
+                        "K"
+                    ],
+                    "remaining_cards": [
+                        "Q",
+                        "K"
+                    ],
+                    "play_reason": "目标牌是 A，我有一张真 A 和一张万能 Joker，可合法凑成‘2A’；再加一张杂牌 K 把出牌数顶到 3，既保留剩下的一张 K、Q 做后续应变，又让下家面对‘3张A’的高压声明。用挑衅式肢体语言把焦点踢给 DeepSeek3——他若信我，我无损过牌；他若质疑，我有75%真实牌力，失败风险主要在他。这样早期不暴露全部真话，也不把子弹留给自己。",
+                    "behavior": "嘴角一勾，把三张牌啪地甩到桌心，指尖在牌背轻敲两下，像给倒计时上发条。没说话，只抬眼扫了 DeepSeek3 一秒，眸色冷得像在说：‘敢跟吗？’",
+                    "next_player": "DeepSeek3",
+                    "was_challenged": true,
+                    "challenge_reason": "Kimi宣称打出3张'A'，但A牌总共有6张，Qwen已经打出2张，我手中有2张A，剩余牌堆中最多只有2张A可用。Kimi一次打出3张A的概率极低，考虑到他挑衅的态度更像是在虚张声势。而且Joker只有2张，即使他手中有Joker，凑成3张A的可能性也不大。这是第一轮，必须果断测试对手的虚实。",
+                    "challenge_result": true,
+                    "play_thinking": "",
+                    "challenge_thinking": ""
+                }
+            ],
+            "round_result": {
+                "shooter_name": "Kimi",
+                "bullet_hit": true
+            }
+        }
+    ],
+    "winner": null
+}
