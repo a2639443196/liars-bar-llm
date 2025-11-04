@@ -2,8 +2,13 @@ const recordGrid = document.getElementById('record-grid');
 const detailPanel = document.getElementById('detail-panel');
 const summaryStats = document.getElementById('summary-stats');
 const toast = document.getElementById('toast');
+const startGameBtn = document.getElementById('start-game-btn');
 
+const urlParams = new URLSearchParams(window.location.search);
 let activeCardId = null;
+let pendingRecordId = urlParams.get('record') || null;
+let gameTaskTimer = null;
+const startButtonDefaultLabel = startGameBtn?.dataset.defaultLabel || startGameBtn?.textContent || '开始新对局';
 
 function showToast(message, tone = 'info') {
   if (!toast) return;
@@ -17,12 +22,24 @@ function showToast(message, tone = 'info') {
   }, 2600);
 }
 
-async function fetchJSON(url) {
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`请求失败：${response.status}`);
+async function fetchJSON(url, options = {}) {
+  const response = await fetch(url, options);
+  let payload = null;
+  try {
+    payload = await response.json();
+  } catch (error) {
+    payload = null;
   }
-  return response.json();
+
+  if (!response.ok) {
+    const message = payload?.error || `请求失败：${response.status}`;
+    const err = new Error(message);
+    err.status = response.status;
+    err.payload = payload;
+    throw err;
+  }
+
+  return payload ?? {};
 }
 
 function createStatCard(value, label, footer = '') {
@@ -47,21 +64,71 @@ function renderSummary(summary) {
     createStatCard(uniquePlayers.length, '参与模型', uniquePlayers.map((name) => `· ${name}`).join('<br />'))
   );
 
-  const winnerLines = summary.winner_breakdown
+  const winnerLines = (summary.winner_breakdown || [])
     .map((item) => `${item.name} <span style="color: rgba(96,165,250,0.8)">${item.count}</span>`)
     .join('<br />');
   summaryStats.appendChild(createStatCard('胜负分布', '胜者统计', winnerLines || '暂无数据'));
 }
 
-function renderRecordList(records) {
+function updateRecordParam(recordId) {
+  if (typeof window === 'undefined' || !window.history?.replaceState) return;
+  const url = new URL(window.location.href);
+  if (recordId) {
+    url.searchParams.set('record', recordId);
+  }
+  url.searchParams.delete('record_path');
+  window.history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
+}
+
+function renderEmptyDetail(message = '未找到对局详情。') {
+  if (!detailPanel) return;
+  detailPanel.classList.add('empty-state');
+  detailPanel.innerHTML = `
+    <div class="empty-illustration">🜁</div>
+    <p>${message}</p>
+  `;
+}
+
+function setActiveRecord(recordId, options = {}) {
+  if (!recordGrid || !recordId) return false;
+  const { force = false, updateUrl = true } = options;
+  const card = recordGrid.querySelector(`.record-card[data-record-id="${recordId}"]`);
+  if (!card) {
+    return false;
+  }
+
+  pendingRecordId = null;
+
+  if (!force && activeCardId === recordId) {
+    if (updateUrl) {
+      updateRecordParam(recordId);
+    }
+    return true;
+  }
+
+  recordGrid.querySelectorAll('.record-card').forEach((el) => el.classList.remove('active'));
+  card.classList.add('active');
+  activeCardId = recordId;
+  if (updateUrl) {
+    updateRecordParam(recordId);
+  }
+  loadRecordDetail(recordId);
+  return true;
+}
+
+function renderRecordList(records, options = {}) {
   if (!recordGrid) return;
+  const { preferredId = null, forceDetail = false } = options;
+
   recordGrid.innerHTML = '';
 
   if (!records.length) {
+    activeCardId = null;
     const placeholder = document.createElement('div');
     placeholder.className = 'record-card';
-    placeholder.innerHTML = '<strong>暂无可用记录</strong><p class="record-meta">请先运行游戏以生成记录。</p>';
+    placeholder.innerHTML = '<strong>暂无可用记录</strong><p class="record-meta">点击右上角按钮开始新对局。</p>';
     recordGrid.appendChild(placeholder);
+    renderEmptyDetail('暂无对局记录，请先运行一局游戏。');
     return;
   }
 
@@ -84,25 +151,53 @@ function renderRecordList(records) {
     `;
 
     card.addEventListener('click', () => {
-      document.querySelectorAll('.record-card').forEach((el) => el.classList.remove('active'));
-      card.classList.add('active');
-      activeCardId = record.id;
-      loadRecordDetail(record.id);
+      setActiveRecord(record.id, { force: true });
     });
 
     recordGrid.appendChild(card);
   });
+
+  const targetCandidates = [];
+  if (preferredId) {
+    targetCandidates.push(preferredId);
+    const exists = records.some((record) => record.id === preferredId);
+    if (!exists) {
+      showToast('未找到指定的对局记录', 'error');
+      if (preferredId === pendingRecordId) {
+        pendingRecordId = null;
+      }
+    }
+  }
+  if (pendingRecordId && !targetCandidates.includes(pendingRecordId)) {
+    targetCandidates.push(pendingRecordId);
+  }
+  if (activeCardId && !targetCandidates.includes(activeCardId)) {
+    targetCandidates.push(activeCardId);
+  }
+  if (!targetCandidates.length && records[0]) {
+    targetCandidates.push(records[0].id);
+  }
+
+  let selected = false;
+  for (const candidate of targetCandidates) {
+    if (!candidate) continue;
+    const shouldForce = forceDetail || candidate === pendingRecordId;
+    if (setActiveRecord(candidate, { force: shouldForce })) {
+      selected = true;
+      break;
+    }
+  }
+
+  if (!selected && records[0]) {
+    setActiveRecord(records[0].id, { force: true });
+  }
 }
 
 function renderDetail(record) {
   if (!detailPanel) return;
 
   if (!record) {
-    detailPanel.classList.add('empty-state');
-    detailPanel.innerHTML = `
-      <div class="empty-illustration">🜁</div>
-      <p>未找到对局详情。</p>
-    `;
+    renderEmptyDetail('未找到对局详情。');
     return;
   }
 
@@ -191,6 +286,7 @@ function renderDetail(record) {
 }
 
 async function loadRecordDetail(recordId) {
+  if (!detailPanel) return;
   detailPanel.classList.remove('empty-state');
   detailPanel.innerHTML = '<p>加载中…</p>';
   try {
@@ -199,30 +295,98 @@ async function loadRecordDetail(recordId) {
   } catch (error) {
     console.error(error);
     showToast('加载对局详情失败，请稍后再试', 'error');
-    detailPanel.innerHTML = '<p>加载失败。</p>';
+    renderEmptyDetail('加载失败，请稍后重试。');
   }
 }
 
-async function bootstrap() {
+async function refreshDashboard(preferredId = null, options = {}) {
   if (!recordGrid || !detailPanel || !summaryStats) {
     return;
   }
   try {
     const payload = await fetchJSON('/api/records');
     renderSummary(payload.summary || { total_records: 0, unique_players: [], winner_breakdown: [] });
-    renderRecordList(payload.records || []);
-    if (payload.records && payload.records.length) {
-      const firstRecord = payload.records[0];
-      const firstCard = recordGrid.querySelector(`.record-card[data-record-id="${firstRecord.id}"]`);
-      if (firstCard) {
-        firstCard.classList.add('active');
-      }
-      activeCardId = firstRecord.id;
-      loadRecordDetail(firstRecord.id);
-    }
+    const targetId = preferredId || pendingRecordId || null;
+    renderRecordList(payload.records || [], { preferredId: targetId, forceDetail: options.forceDetail });
   } catch (error) {
     console.error(error);
     showToast('获取对局列表失败，请检查服务端日志', 'error');
+  }
+}
+
+function setStartButtonState({ label = startButtonDefaultLabel, disabled = false } = {}) {
+  if (!startGameBtn) return;
+  startGameBtn.textContent = label;
+  startGameBtn.disabled = disabled;
+}
+
+function clearGameTaskTimer() {
+  if (gameTaskTimer) {
+    clearTimeout(gameTaskTimer);
+    gameTaskTimer = null;
+  }
+}
+
+function monitorGameTask(taskId) {
+  if (!taskId) {
+    setStartButtonState({ label: startButtonDefaultLabel, disabled: false });
+    return;
+  }
+
+  const poll = async () => {
+    try {
+      const payload = await fetchJSON(`/api/games/${taskId}`);
+      if (payload.status === 'running') {
+        gameTaskTimer = window.setTimeout(poll, 3500);
+        return;
+      }
+
+      clearGameTaskTimer();
+      setStartButtonState({ label: startButtonDefaultLabel, disabled: false });
+
+      if (payload.status === 'finished') {
+        const recordId = payload.record_id || null;
+        pendingRecordId = recordId;
+        showToast('新对局完成，已更新记录列表');
+        await refreshDashboard(recordId, { forceDetail: true });
+      } else if (payload.status === 'failed') {
+        showToast(`对局运行失败：${payload.error || '未知错误'}`, 'error');
+      }
+    } catch (error) {
+      console.error(error);
+      clearGameTaskTimer();
+      setStartButtonState({ label: startButtonDefaultLabel, disabled: false });
+      showToast('轮询对局状态失败，请查看日志', 'error');
+    }
+  };
+
+  poll();
+}
+
+async function handleStartGame() {
+  if (!startGameBtn) return;
+  try {
+    setStartButtonState({ label: '正在启动…', disabled: true });
+    const payload = await fetchJSON('/api/games', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
+    });
+    showToast('已发起新对局，生成记录后将自动刷新');
+    setStartButtonState({ label: '对局运行中…', disabled: true });
+    clearGameTaskTimer();
+    monitorGameTask(payload.task_id);
+  } catch (error) {
+    console.error(error);
+    setStartButtonState({ label: startButtonDefaultLabel, disabled: false });
+    showToast(error.message || '启动对局失败', 'error');
+  }
+}
+
+async function bootstrap() {
+  await refreshDashboard(pendingRecordId);
+  if (startGameBtn) {
+    startGameBtn.addEventListener('click', handleStartGame);
   }
 }
 
